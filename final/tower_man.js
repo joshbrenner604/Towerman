@@ -5,7 +5,7 @@
       // Set up a basic Quintus object
       // with the necessary modules and controls
       var Q = window.Q = Quintus({ development: true })
-              .include("Sprites, Scenes, Input, 2D")
+              .include("Sprites, Scenes, Input, 2D, UI")
               .setup({ width: 640, height: 480 })
               .controls(true)
 
@@ -13,6 +13,8 @@
       // along with joypad controls for touch
       Q.input.keyboardControls();
       Q.input.joypadControls();
+      Q.state.reset({ score: 0, lives: 2, stage: 1});
+      console.log(Q.state.get("score"));
 
       Q.gravityX = 0;
       Q.gravityY = 0;
@@ -73,7 +75,19 @@
         }
       });
 
-
+      Q.UI.Text.extend("Score", {
+        init: function(p) {
+        this._super({
+        label: "Score: 0",
+        x:100,
+        y:20
+      });
+        Q.state.on("change.score",this,"scoreChange");
+       },
+      scoreChange: function(score) {
+      this.p.label = "Score: " + score;
+     }
+    });  
       Q.Sprite.extend("Player", {
         init: function(p) {
 
@@ -84,7 +98,7 @@
           });
 
           this.add("2d, towerManControls");
-        }
+      }
       });
 
 
@@ -109,6 +123,7 @@
           // Destroy it and keep track of how many dots are left
           this.destroy();
           this.stage.dotCount--;
+          Q.state.inc("score",100);
           // If there are no more dots left, just restart the game
           if(this.stage.dotCount == 0) {
             Q.stageScene("level2");
@@ -263,6 +278,7 @@
 
         hit: function(col) {
           if(col.obj.isA("Player")) {
+            Q.state.reset({ score: 0, lives: 2, stage: 1});
             Q.stageScene("level1");
           }
         }
@@ -271,7 +287,22 @@
       Q.scene("level1",function(stage) {
         var map = stage.collisionLayer(new Q.TowerManMap());
         map.setup();
+        /**
+        var container = stage.insert(new Q.UI.Container({
+         
+          y: 48,
+          x: Q.width/2 
+        }));
 
+        stage.insert(new Q.UI.Text({ 
+        label: "Score: " + Q.state.get("score"),
+        color: "white",
+        x: -207,
+        y: -30
+        }),container);
+        container.fit(2,2);
+        **/
+        stage.insert(new Q.Score());
         stage.insert(new Q.Player(Q.tilePos(10,7)));
 
         stage.insert(new Q.Enemy(Q.tilePos(10,4)));
@@ -281,7 +312,23 @@
       Q.scene("level2",function(stage) {
         var map = stage.collisionLayer(new Q.TowerManMap2());
         map.setup();
+        /**
+        var container = stage.insert(new Q.UI.Container({
+         
+          y: 48,
+          x: Q.width/2 
+        }));
 
+       Q.state.on("change.score",this,"score");
+        stage.insert(new Q.UI.Text({ 
+
+         label: "Score: " + Q.state.get("score"),
+         color: "white",
+         x: -207,
+         y: -30
+        }),container);
+        container.fit(2,2);**/
+        stage.insert(new Score());
         stage.insert(new Q.Player(Q.tilePos(10,7)));
 
         stage.insert(new Q.Enemy(Q.tilePos(10,4)));
@@ -295,6 +342,7 @@
         Q.compileSheets("sprites.png","sprites.json");
 
         Q.stageScene("level1");
+       
       });
 
     });
