@@ -111,7 +111,7 @@
           this.stage.dotCount--;
           // If there are no more dots left, just restart the game
           if(this.stage.dotCount == 0) {
-            Q.stageScene("level1");
+            Q.stageScene("level2");
           }
         },
 
@@ -169,7 +169,35 @@
         }
 
       });
+      Q.TileLayer.extend("TowerManMap2",{
+        init: function() {
+          this._super({
+            type: SPRITE_TILES,
+            dataAsset: 'level2.json',
+            sheet:     'tiles',
+          });
 
+        },
+        
+        setup: function() {
+          // Clone the top level arriw
+          var tiles = this.p.tiles = this.p.tiles.concat();
+          var size = this.p.tileW;
+          for(var y=0;y<tiles.length;y++) {
+            var row = tiles[y] = tiles[y].concat();
+            for(var x =0;x<row.length;x++) {
+              var tile = row[x];
+
+              if(tile == 0 || tile == 2) {
+                var className = tile == 0 ? 'Dot' : 'Tower'
+                this.stage.insert(new Q[className](Q.tilePos(x,y)));
+                row[x] = 0;
+              }
+            }
+          }
+        }
+
+      });
       Q.component("enemyControls", {
         defaults: { speed: 100, direction: 'left', switchPercent: 2 },
 
@@ -250,8 +278,18 @@
         stage.insert(new Q.Enemy(Q.tilePos(15,10)));
         stage.insert(new Q.Enemy(Q.tilePos(5,10)));
       });
+      Q.scene("level2",function(stage) {
+        var map = stage.collisionLayer(new Q.TowerManMap2());
+        map.setup();
 
-      Q.load("sprites.png, sprites.json, level.json, tiles.png", function() {
+        stage.insert(new Q.Player(Q.tilePos(10,7)));
+
+        stage.insert(new Q.Enemy(Q.tilePos(10,4)));
+        stage.insert(new Q.Enemy(Q.tilePos(15,10)));
+        stage.insert(new Q.Enemy(Q.tilePos(5,10)));
+      });
+
+      Q.load("sprites.png, sprites.json, level.json, level2.json, tiles.png", function() {
         Q.sheet("tiles","tiles.png", { tileW: 32, tileH: 32 });
 
         Q.compileSheets("sprites.png","sprites.json");
