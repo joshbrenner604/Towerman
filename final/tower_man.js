@@ -328,7 +328,7 @@
          y: -30
         }),container);
         container.fit(2,2);**/
-        stage.insert(new Score());
+        stage.insert(new Q.Score());
         stage.insert(new Q.Player(Q.tilePos(10,7)));
 
         stage.insert(new Q.Enemy(Q.tilePos(10,4)));
