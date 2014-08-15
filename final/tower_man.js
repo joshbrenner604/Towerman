@@ -1,4 +1,4 @@
-
+//Not sure if it worked
     // 1. Wait for the onload even
     window.addEventListener("load",function() {
 
